@@ -1,0 +1,5 @@
+string robot_name
+float32 battery_level
+bool is_moving
+float32 linear_velocity
+float32 angular_velocity
