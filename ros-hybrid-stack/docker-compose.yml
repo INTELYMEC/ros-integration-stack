@@ -3,16 +3,30 @@ version: "3.9"
 services:
   robot_p3at_sim:
     build: ./robot_p3at_sim
+    container_name: robot_p3at_sim
+    environment:
+      - ROS_MASTER_URI=http://${ROS_MASTER_HOSTNAME}:11311
+      - ROS_HOSTNAME=${ROS_MASTER_HOSTNAME}
+      - STRATEGY=${STRATEGY}
     networks:
       - rosnet
 
   ros2_bridge:
-    build: ./ros2_bridge
-    platform: linux/amd64
-    networks:
-      - rosnet
+    build:
+      context: ./ros2_bridge
+      args:
+        - BASE_IMAGE=${ROS2_BASE_IMAGE}
+    container_name: ros2_bridge
+    hostname: ros2_bridge
     depends_on:
       - robot_p3at_sim
+    environment:
+      - ROS_MASTER_URI=http://${ROS_MASTER_HOSTNAME}:11311
+      - ROS_HOSTNAME=ros2_bridge
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID}
+    networks:
+      - rosnet
 
 networks:
   rosnet:
+    driver: bridge
