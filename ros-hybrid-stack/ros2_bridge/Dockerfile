@@ -18,9 +18,9 @@ RUN apt-get update && apt-get install -y \
     iputils-ping
 
 # Repositorio ROS 1 Noetic
-RUN echo "deb http://packages.ros.org/ros/ubuntu focal main" \
-    > /etc/apt/sources.list.d/ros1.list && \
-    curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add -
+RUN apt-get update && apt-get install -y curl && \
+    curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | tee /etc/apt/trusted.gpg.d/ros.asc && \
+    echo "deb http://packages.ros.org/ros/ubuntu focal main" > /etc/apt/sources.list.d/ros1.list
 
 # Instalar ROS1 Noetic
 RUN apt-get update && apt-get install -y \
