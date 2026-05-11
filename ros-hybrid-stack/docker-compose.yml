@@ -24,8 +24,24 @@ services:
       - ROS_MASTER_URI=http://${ROS_MASTER_HOSTNAME}:11311
       - ROS_HOSTNAME=ros2_bridge
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID}
+      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
     networks:
       - rosnet
+
+  ros_tests:
+    build:
+      context: ./ros_tests
+      args:
+        BASE_IMAGE: ${ROS2_BASE_IMAGE}
+    depends_on:
+      - robot_p3at_sim
+      - ros2_bridge
+    networks:
+      - rosnet
+    environment:
+      - ROS_MASTER_URI=http://${ROS_MASTER_HOSTNAME}:11311
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID}
+      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 
 networks:
   rosnet:

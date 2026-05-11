@@ -1,7 +1,9 @@
 #!/bin/bash
 set -e
 
+unset ROS_DISTRO ROS_ROOT ROS_PACKAGE_PATH
 source /opt/ros/noetic/setup.bash
+unset ROS_DISTRO ROS_ROOT ROS_PACKAGE_PATH
 source /opt/ros/foxy/setup.bash
 source /bridge_ws/install/setup.bash
 
