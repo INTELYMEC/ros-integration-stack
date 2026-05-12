@@ -50,28 +50,58 @@ ROS1 Noetic + ROS2 Foxy
 
 > Si usas Mac M1/ARM, revisa el archivo `.env` para usar `ROS2_BASE_IMAGE=arm64v8/ros:foxy-ros-base`.
 
+## Atajos de ejecución
+
+Este proyecto incluye comandos de conveniencia para macOS/Ubuntu y Windows PowerShell.
+
+Los scripts están organizados en dos carpetas:
+- `scripts/bash/` para Linux/macOS
+- `scripts/powershell/` para Windows PowerShell
+
+- macOS / Ubuntu:
+  - `make build` (con cache)
+  - `make build-no-cache` (reconstruir sin cache)
+  - `make up` (levanta solo la plataforma de ROS y bridge)
+  - `make down`
+  - `make test` (levanta primero `robot_p3at_sim` y `ros2_bridge`, luego ejecuta `ros_tests`)
+  - `make ros1-shell`
+  - `make ros2-shell`
+  - `make logs`
+
+- Windows PowerShell:
+  - `.\scripts\powershell\build.ps1`
+  - `.\scripts\powershell\build-no-cache.ps1`
+  - `.\scripts\powershell\up.ps1`
+  - `.\scripts\powershell\down.ps1`
+  - `.\scripts\powershell\test.ps1`
+  - `.\scripts\powershell\ros1-shell.ps1`
+  - `.\scripts\powershell\ros2-shell.ps1`
+  - `.\scripts\powershell\logs.ps1`
+
+> `make` funciona de forma nativa en macOS y Ubuntu. En Windows puedes usar estos scripts de PowerShell si no tienes `make` instalado.
+> En PowerShell, ejecuta `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` si necesitas permitir scripts locales temporales.
+
 ## Primeros pasos
 
 1. Sitúate en la raíz del proyecto:
 
 ```bash
-cd ../ros-integration-stack/ros-hybrid-stack
+cd /path/to/ros-hybrid-stack
 ```
 
 2. Construye los contenedores:
 
 ```bash
-docker compose down -v
-docker compose build --no-cache
+make build
 ```
 
 3. Inicia el stack:
 
 ```bash
-docker compose up
+make up
 ```
 
-> También se pueden usar `docker compose up --build` si prefieres construir e iniciar en un solo paso.
+> Alternativa manual: usa `docker compose down -v`, `docker compose build --no-cache` y `docker compose up`.
 
 ## Comprobación de contenedores
 
@@ -145,11 +175,16 @@ El contenedor `ros_tests` ejecuta dos pruebas básicas:
 - `ros1 -> ros2`
 - `ros2 -> ros1`
 
-Para ejecutar las pruebas manualmente desde el host:
+Para ejecutar las pruebas desde el host, usa el atajo:
 
 ```bash
-chmod +x ros_tests/run_tests.sh
-docker compose up --build
+make test
+```
+
+O en PowerShell:
+
+```powershell
+.\scripts\powershell\test.ps1
 ```
 
 Si prefieres ejecutar la prueba dentro del contenedor `ros_tests`, haz:

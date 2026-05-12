@@ -29,6 +29,7 @@ services:
       - rosnet
 
   ros_tests:
+    profiles: ["test"]
     build:
       context: ./ros_tests
       args:
