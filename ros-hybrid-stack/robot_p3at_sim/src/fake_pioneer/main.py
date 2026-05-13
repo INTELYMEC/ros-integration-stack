@@ -10,7 +10,10 @@ from strategies.random_walk import run as random_walk
 def main():
     rospy.init_node("fake_pioneer")
 
-    pub = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
+    ns = os.environ.get("ROBOT_NAMESPACE", "p3at_sim_1").strip().strip("/")
+    cmd_topic = f"/{ns}/cmd_vel"
+    pub = rospy.Publisher(cmd_topic, Twist, queue_size=10)
+    rospy.loginfo("Publishing cmd_vel on %s", cmd_topic)
 
     strategy = os.getenv("STRATEGY", "square")
 

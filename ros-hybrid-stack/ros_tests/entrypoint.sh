@@ -2,9 +2,18 @@
 
 set -euo pipefail
 
-export ROS_MASTER_URI=http://robot_p3at_sim:11311
+NS1="${ROBOT_ROS1_NAMESPACE:-p3at_sim_1}"
+NS2="${ROBOT_ROS2_NAMESPACE:-p3at_sim_2}"
+NS1="${NS1#/}"
+NS2="${NS2#/}"
+CMD_TOPIC_1="/${NS1}/cmd_vel"
+CMD_TOPIC_2="/${NS2}/cmd_vel"
 
-echo "🔄 Esperando ROS Master..."
+export ROS_MASTER_URI="${ROS_MASTER_URI:-http://robot_p3at_sim_ros1:11311}"
+
+mkdir -p /ros_test_shared
+
+echo "🔄 Esperando ROS Master (${ROS_MASTER_URI})..."
 
 until bash -c "
 unset ROS_DISTRO ROS_ROOT ROS_PACKAGE_PATH
@@ -17,17 +26,19 @@ done
 
 echo "✅ ROS Master disponible"
 
-echo "🔄 Esperando Bridge..."
+echo "🔄 Esperando bridge en ROS2 (${CMD_TOPIC_1} y ${CMD_TOPIC_2})..."
 
 until bash -c "
 unset ROS_DISTRO ROS_ROOT ROS_PACKAGE_PATH
 source /opt/ros/foxy/setup.bash
-ros2 topic list | grep /cmd_vel >/dev/null 2>&1
+list=\$(ros2 topic list 2>/dev/null || true)
+echo \"\$list\" | grep -Fq \"${CMD_TOPIC_1}\"
+echo \"\$list\" | grep -Fq \"${CMD_TOPIC_2}\"
 "
 do
     sleep 1
 done
 
-echo "✅ Bridge detectado"
+echo "✅ Bridge / sim detectado en ROS2"
 
 exec /tests/run_tests.sh

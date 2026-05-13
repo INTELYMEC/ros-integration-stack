@@ -2,15 +2,8 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-docker compose build
+echo "ℹ️  El stack debe estar en marcha (p. ej. make up: sim ROS1, sim ROS2, ros2_bridge)." >&2
 
-docker compose up -d robot_p3at_sim ros2_bridge
+docker compose build ros_tests
 
-RESULT=0
-if ! docker compose run --rm ros_tests; then
-  RESULT=$?
-fi
-
-docker compose down -v
-
-exit $RESULT
+exec docker compose run --rm ros_tests
