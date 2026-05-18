@@ -63,6 +63,9 @@ shell-gazebo:
 shell-gui:
 	@$(CHECK_ENV) && $(EXEC) gui-desktop bash -c "source /opt/ros/noetic/setup.bash && export DISPLAY=:1 && bash"
 
+test:
+	@$(CHECK_ENV) && echo "🕵️ Lanzando la suite de pruebas completa..." && $(DC) --profile test up --build ros_tests
+
 clean:
 	docker compose down -v --rmi local
 	docker system prune -f
