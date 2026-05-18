@@ -1,133 +1,92 @@
-# ROS Hybrid Stack
 
-Proyecto: ROS Hybrid Stack (ROS1 + ROS2 con Docker)
+⚙️ Variables de Entorno (.env)
+El archivo .env es obligatorio para la ejecución. El Makefile bloqueará cualquier comando operativo si este archivo no se encuentra en la raíz. Existe una plantilla base de referencia en .env.example.
 
-Integración híbrida entre **ROS 1 Noetic** y **ROS 2 Foxy** con Docker y `ros1_bridge` (bridge dinámico). Incluye **dos robots simulados con prefijos distintos**: uno asociado al grafo ROS1 (`p3at_sim_1` por defecto) y otro al grafo ROS2 (`p3at_sim_2` por defecto), de forma que el bridge refleja tópicos con el **mismo nombre** en ambos mundos.
+Contrato de Variables Exigidas
+Variable	Propósito / Opciones
+ROS1_BASE_IMAGE	Imagen base Noetic (ej: arm64v8/ros:noetic para Mac M1/M2/M3, ros:noetic para Intel).
+ROS2_BASE_IMAGE	Imagen base Foxy (ej: arm64v8/ros:foxy-ros-base para Mac, ros:foxy-ros-base para Intel).
+ROS_DOMAIN_ID	Identificador de aislamiento de subred para ROS 2 (Default: 0).
+ROBOT_ROS1_NAMESPACE	Namespace asignado al robot en el grafo ROS 1 (p3at_sim_1).
+ROBOT_ROS2_NAMESPACE	Namespace asignado al robot en el grafo ROS 2 (p3at_sim_2).
+STRATEGY	Patrón matemático de navegación del robot (square / random).
+ROS_MASTER_HOSTNAME	Hostname de resolución para el Máster (Uso local: ros-master / Físico: IP del robot).
+ROS_MASTER_PORT	Puerto de escucha del máster (Default: 11311).
+ROBOT_MODEL_FILE	Nombre del archivo URDF en la carpeta robots/ (ej: pioneer3at.urdf).
+ROBOT_MODEL_NAME	Nombre de la entidad para el registro interno de Gazebo (ej: pioneer3at).
+GAZEBO_WORLD_FILE	Archivo de escenario dentro de la carpeta worlds/ (ej: pioneer_world.world).
+GAZEBO_GUI_ENABLED	Activa la UI pesada de Gazebo nativa (true para Ubuntu nativo / false para Mac/Win).
+HOST_DISPLAY	Socket gráfico del host para Ubuntu nativo (:0).
 
-## Arquitectura
-
-Servicios principales:
-
-- **`robot_p3at_sim_ros1`**
-  - ROS 1 Noetic: `roscore`, `fake_pioneer` (publica `cmd_vel` bajo `ROBOT_NAMESPACE` = robot ROS1) y `bridge_test_trigger_ros1` para tests sim↔sim.
-
-- **`robot_p3at_sim_ros2`**
-  - ROS 2 Foxy: código en `src/fake_pioneer/` (misma idea de paquete que en el sim ROS1).
-  - `main.py`: escucha `/${ROBOT_ROS1_NAMESPACE}/cmd_vel` en ROS2 (línea reflejada desde el sim ROS1 vía bridge).
-  - `bridge_test_trigger_ros2.py`: disparador bajo `/${ROBOT_ROS2_NAMESPACE}/` para tests ROS2 → ROS1.
-
-- **`ros2_bridge`**
-  - Imagen híbrida Noetic + Foxy, `ros1_bridge` compilado, `dynamic_bridge --bridge-all-topics`.
-
-- **`ros_tests`** (perfil `test`)
-  - Pruebas intra-grafo y a través del bridge.
-
-Red Docker: `rosnet`.
-
-### Esquema conceptual
-
-```text
-[ robot_p3at_sim_ros1 ]                    [ robot_p3at_sim_ros2 ]
-ROS1 Noetic                                ROS2 Foxy
-/p3at_sim_1/cmd_vel  …                     escucha /p3at_sim_1/cmd_vel (vía bridge)
-/p3at_sim_1/ros1_bridge_test_trigger       /p3at_sim_2/cmd_vel, ros2_bridge_test_trigger
-
-                    ⇅  [ ros2_bridge ]
-                    ros1_bridge
-```
-
-## Variables de entorno (`.env`)
-
-Copia `.env.example` a `.env` y ajusta:
-
-| Variable | Rol |
-|----------|-----|
-| `ROS2_BASE_IMAGE` | Imagen base Foxy (en ARM: `arm64v8/ros:foxy-ros-base`). |
-| `ROS_MASTER_HOSTNAME` | Hostname del master ROS1 (`robot_p3at_sim_ros1`). |
-| `ROS_DOMAIN_ID` | Dominio DDS ROS2. |
-| `ROBOT_ROS1_NAMESPACE` | Prefijo del robot solo en ROS1 (default `p3at_sim_1`). |
-| `ROBOT_ROS2_NAMESPACE` | Prefijo del robot solo en ROS2 (default `p3at_sim_2`). |
-| `STRATEGY` | Estrategia del fake pioneer: `square` o `random`. |
-
-En `docker-compose`, el contenedor ROS1 recibe `ROBOT_NAMESPACE=${ROBOT_ROS1_NAMESPACE}` para compatibilidad con el código existente de `fake_pioneer`.
-
-## Requisitos
-
-- Docker y Docker Compose v2 (`docker compose`).
-
-## Atajos de ejecución
-
-- `scripts/bash/` (Linux/macOS) y `scripts/powershell/` (Windows).
-
-Comandos típicos:
-
-- `make build` / `make build-no-cache`
-- `make up` — levanta `robot_p3at_sim_ros1`, `robot_p3at_sim_ros2` y `ros2_bridge`
-- `make down`
-- `make test` — construye, levanta los tres servicios anteriores, ejecuta `ros_tests`, hace `down -v`
-- `make ros1-shell` → `robot_p3at_sim_ros1`
-- `make ros2-sim-shell` → `robot_p3at_sim_ros2`
-- `make ros2-shell` → `ros2_bridge`
-- `make logs`
-
-## Primeros pasos
-
-```bash
+🚀 Guía de Arranque Rápido
+1. Clonar e Inicializar el Entorno Local
+Bash
 cd ros-hybrid-stack
-cp .env.example .env   # opcional
+cp .env.example .env
+💡 Nota de seguridad: Edita el .env recién creado e inyecta los tags de tus imágenes base según la arquitectura de tu procesador (Intel o Apple Silicon).
+
+2. Compilar el Ecosistema Híbrido
+Bash
 make build
+(Al compilar el puente dinámico desde las fuentes de ROS, la primera ejecución puede demorar unos minutos).
+
+3. Levantar el Laboratorio Completo
+Bash
 make up
-```
+Una vez ejecutado, abrí tu navegador e ingresá a http://localhost:8080. Introducí la credencial de acceso ubuntu y verás el escritorio virtual con RViz escuchando los tópicos en tiempo real.
 
-## Comprobación de contenedores
+🕵️ Certificación y Suite de Tests Automatizados
+El framework cuenta con una suite rigurosa de 10 pruebas automatizadas encapsuladas que evalúan la infraestructura de sockets, la integridad de los grafos aislados, la consistencia del bridge bidireccional y las telemetrías del motor de física de Gazebo.
 
-```bash
-docker ps
-```
+Para lanzar la auditoría sobre tu stack activo, simplemente ejecutá:
 
-Deberías ver `robot_p3at_sim_ros1`, `robot_p3at_sim_ros2` y `ros2_bridge`.
-
-## Onboarding: comandos manuales con namespaces
-
-Sustituye `NS1`/`NS2` por tus valores de `.env` (por defecto `p3at_sim_1` y `p3at_sim_2`).
-
-### Publicar en ROS2 y escuchar en ROS1
-
-En `ros2_bridge` (Foxy), publica en `/${NS2}/cmd_vel`. En otra sesión, dentro del mismo contenedor o en ROS1, `rostopic echo /${NS2}/cmd_vel` debe ver el mensaje si el bridge enlaza el tópico.
-
-### Publicar en ROS1 y escuchar en ROS2
-
-Desde `robot_p3at_sim_ros1`, publica en `/${NS1}/cmd_vel`. En `ros2_bridge`, `ros2 topic echo /${NS1}/cmd_vel` debe mostrar los `Twist`.
-
-## Pruebas automatizadas
-
-El contenedor `ros_tests` ejecuta scripts en `/tests/tests/` (intra ROS1/ROS2, bridge en ambas direcciones, sim↔sim vía bridge).
-
-```bash
+Bash
 make test
-```
+Unidades de Verificación Incluidas:
+Infraestructura: Disponibilidad HTTP/WebSocket del servidor visual gui-desktop (Puerto 80).
 
-O manualmente:
+ROS 1 Intra-grafo: Publicación y lectura interna aislada en Noetic.
 
-```bash
-docker compose run --rm ros_tests
-```
+ROS 2 Intra-grafo: Publicación y descubrimiento de nodos bajo CycloneDDS en Foxy.
 
-Dentro del contenedor de tests:
+Bridge Flujo Directo: Ingesta de cmd_vel desde ROS 1 y captura correcta reflejada en ROS 2.
 
-```bash
-/tests/run_tests.sh
-```
+Bridge Flujo Inverso: Publicación en ROS 2 y lectura de estructuras geometry_msgs/Twist en ROS 1.
 
-## Notas útiles
+Sim Cross-Talk ROS1 ──► ROS2: Triggers de eventos simulados cruzando el puente.
 
-- El bridge refleja tópicos por **nombre**; para cruzar mensajes entre “robot ROS1” y “robot ROS2” los tests publican en el namespace que corresponde al origen y escuchan el **mismo path** en el otro grafo cuando aplica.
-- `ros2_bridge` compila `ros1_bridge` en Foxy contra Noetic según el `Dockerfile` del bridge.
+Sim Cross-Talk ROS2 ──► ROS1: Respuesta inversa de eventos de simulación.
 
-## Flujo de ejemplo con compose
+Gazebo Clock: Publicación activa del reloj de simulación de física cuántica (/clock).
 
-```bash
-docker compose down -v
-docker compose build --no-cache
-docker compose up robot_p3at_sim_ros1 robot_p3at_sim_ros2 ros2_bridge
-```
+Gazebo Entity: Verificación de inyección correcta del modelo URDF en los estados del mundo.
+
+Gazebo Odometry: Validación de publicación de telemetría de chasis física (/odom).
+
+🛠️ Atajos del Desarrollador (Makefile)
+Todos los comandos operativos están centralizados y protegidos por el validador del .env:
+
+make up: Levanta de forma coordinada el máster, entorno gráfico, simulación y puentes de datos.
+
+make down: Apaga todos los servicios destruyendo la asignación de red temporal para evitar colisiones.
+
+make test: Compila y lanza el inspector efímero de pruebas mostrando el reporte final de éxitos/fallos.
+
+make restart s=<nombre_servicio>: Reinicia en caliente un único contenedor (ej: make restart s=robot_p3at_sim_ros1).
+
+make clean: Purga profunda de Docker eliminando volúmenes locales residuales y liberando espacio en disco.
+
+Acceso Directo a Terminales (Shells)
+Si necesitás auditar tópicos manualmente mediante comandos nativos (rostopic, ros2 topic), podés inyectarte directo en caliente en los contenedores usando:
+
+make shell-master
+
+make shell-robot1
+
+make shell-robot2
+
+make shell-bridge
+
+make shell-gazebo
+
+make shell-gui (Inicializa la shell directo con el entorno sourceado y permisos X11).

@@ -4,16 +4,75 @@ volumes:
   ros_test_shared:
 
 services:
-  robot_p3at_sim_ros1:
-    build: ./robot_p3at_sim
-    container_name: robot_p3at_sim_ros1
+  ros-master:
+    build:
+      context: ./ros-master
+      args:
+        - BASE_IMAGE=${ROS1_BASE_IMAGE}
+    container_name: ros-master
+    hostname: ros-master
     environment:
-      - ROS_MASTER_URI=http://${ROS_MASTER_HOSTNAME}:11311
-      - ROS_HOSTNAME=${ROS_MASTER_HOSTNAME}
-      - STRATEGY=${STRATEGY}
-      - ROBOT_NAMESPACE=${ROBOT_ROS1_NAMESPACE:-p3at_sim_1}
+      - ROS_MASTER_URI=http://${ROS_MASTER_HOSTNAME}:${ROS_MASTER_PORT}
+      - ROS_HOSTNAME=ros-master
     networks:
       - rosnet
+  robot_p3at_sim_ros1:
+    build:
+      context: ./robot_p3at_sim_ros1
+      args:
+        - BASE_IMAGE=${ROS1_BASE_IMAGE}
+    depends_on:
+      - ros-master
+      - gazebo
+    container_name: robot_p3at_sim_ros1
+    environment:
+      - ROS_MASTER_URI=http://${ROS_MASTER_HOSTNAME}:${ROS_MASTER_PORT}
+      - ROS_HOSTNAME=robot_p3at_sim_ros1
+      - STRATEGY=${STRATEGY}
+      - ROBOT_NAMESPACE=${ROBOT_ROS1_NAMESPACE}
+    networks:
+      - rosnet
+  gui-desktop:
+    image: tiryoh/ros-desktop-vnc:noetic
+    container_name: gui-desktop
+    hostname: gui-desktop
+    shm_size: "512mb"
+    environment:
+      - ROS_MASTER_URI=http://${ROS_MASTER_HOSTNAME}:${ROS_MASTER_PORT}
+      - ROS_HOSTNAME=gui-desktop
+      - XHOST_DISABLE=1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    ports:
+      - "8080:80"
+    networks:
+      - rosnet
+  gazebo:
+    build:
+      context: ./gazebo_classic
+      args:
+        - BASE_IMAGE=${ROS1_BASE_IMAGE}
+    container_name: gazebo
+    hostname: gazebo
+    depends_on:
+      - ros-master
+    environment:
+      - ROS_MASTER_URI=http://${ROS_MASTER_HOSTNAME}:${ROS_MASTER_PORT}
+      - ROS_HOSTNAME=gazebo
+    volumes:
+      - ./gazebo_classic/worlds:/root/worlds
+      - ./gazebo_classic/models:/root/.gazebo/models
+      - ./gazebo_classic/robots:/root/robots
+    networks:
+      - rosnet
+    command: [
+      "roslaunch", 
+      "/root/worlds/simulation.launch", 
+      "world_file:=${GAZEBO_WORLD_FILE}",
+      "robot_file:=/root/robots/${ROBOT_MODEL_FILE}",
+      "robot_name:=${ROBOT_MODEL_NAME}",
+      "gui:=${GAZEBO_GUI_ENABLED}"
+    ]
 
   robot_p3at_sim_ros2:
     build:
@@ -25,8 +84,8 @@ services:
     environment:
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID}
       - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-      - ROBOT_ROS1_NAMESPACE=${ROBOT_ROS1_NAMESPACE:-p3at_sim_1}
-      - ROBOT_ROS2_NAMESPACE=${ROBOT_ROS2_NAMESPACE:-p3at_sim_2}
+      - ROBOT_ROS1_NAMESPACE=${ROBOT_ROS1_NAMESPACE}
+      - ROBOT_ROS2_NAMESPACE=${ROBOT_ROS2_NAMESPACE}
     volumes:
       - ros_test_shared:/ros_test_shared
     networks:
@@ -40,10 +99,11 @@ services:
     container_name: ros2_bridge
     hostname: ros2_bridge
     depends_on:
+      - ros-master             # 🆕 Corrección Crítica: Necesita el Master ROS 1 vivo
       - robot_p3at_sim_ros1
       - robot_p3at_sim_ros2
     environment:
-      - ROS_MASTER_URI=http://${ROS_MASTER_HOSTNAME}:11311
+      - ROS_MASTER_URI=http://${ROS_MASTER_HOSTNAME}:${ROS_MASTER_PORT}
       - ROS_HOSTNAME=ros2_bridge
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID}
       - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
@@ -63,11 +123,11 @@ services:
     networks:
       - rosnet
     environment:
-      - ROS_MASTER_URI=http://${ROS_MASTER_HOSTNAME}:11311
+      - ROS_MASTER_URI=http://${ROS_MASTER_HOSTNAME}:${ROS_MASTER_PORT}
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID}
       - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-      - ROBOT_ROS1_NAMESPACE=${ROBOT_ROS1_NAMESPACE:-p3at_sim_1}
-      - ROBOT_ROS2_NAMESPACE=${ROBOT_ROS2_NAMESPACE:-p3at_sim_2}
+      - ROBOT_ROS1_NAMESPACE=${ROBOT_ROS1_NAMESPACE}
+      - ROBOT_ROS2_NAMESPACE=${ROBOT_ROS2_NAMESPACE}
     volumes:
       - ros_test_shared:/ros_test_shared
 
