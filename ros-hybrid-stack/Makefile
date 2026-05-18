@@ -64,6 +64,6 @@ shell-gui:
 	@$(CHECK_ENV) && $(EXEC) gui-desktop bash -c "source /opt/ros/noetic/setup.bash && export DISPLAY=:1 && bash"
 
 clean:
-	docker compose down --v --rmi local
+	docker compose down -v --rmi local
 	docker system prune -f
-	@echo "🧹 Docker limpio y espacio liberado."
+	@echo "🧹 Docker limpio y espacio liberado por completo."
