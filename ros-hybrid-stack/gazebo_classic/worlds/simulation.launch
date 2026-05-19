@@ -1,7 +1,6 @@
 <launch>
   <arg name="world_file" default="pioneer_world.world"/>
   <arg name="robot_file" default="/root/robots/pioneer3at.urdf"/>
-  <arg name="robot_name" default="pioneer3at"/>
   <arg name="gui"        default="false"/>
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -11,7 +10,11 @@
     <arg name="verbose" value="true"/>
   </include>
 
-  <node name="spawn_robot" pkg="gazebo_ros" type="spawn_model" 
-        args="-file $(arg robot_file) -urdf -model $(arg robot_name) -x 0 -y 0 -z 0.1" 
+  <node name="spawn_p3at_sim_1" pkg="gazebo_ros" type="spawn_model" 
+        args="-file $(arg robot_file) -urdf -model p3at_sim_1 -x 0 -y 0 -z 0.1" 
+        output="screen"/>
+
+  <node name="spawn_p3at_sim_2" pkg="gazebo_ros" type="spawn_model" 
+        args="-file $(arg robot_file) -urdf -model p3at_sim_2 -x 2 -y 2 -z 0.1" 
         output="screen"/>
 </launch>

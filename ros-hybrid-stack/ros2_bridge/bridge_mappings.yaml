@@ -1,0 +1,19 @@
+# ./ros2_bridge/bridge_mappings.yaml
+
+# 1. Sincronización del Reloj (Indispensable para que ROS 2 entienda el tiempo físico de Gazebo)
+- ros1_topic_name: '/clock'
+  ros2_topic_name: '/clock'
+  ros1_type: 'rosgraph_msgs/Clock'
+  ros2_type: 'rosgraph_msgs/msg/Clock'
+
+# 2. Comandos de Velocidad (Tu script de ROS 2 inyecta datos hacia las ruedas de Gazebo en ROS 1)
+- ros1_topic_name: '/p3at_sim_2/cmd_vel'
+  ros2_topic_name: '/p3at_sim_2/cmd_vel'
+  ros1_type: 'geometry_msgs/Twist'
+  ros2_type: 'geometry_msgs/msg/Twist'
+
+# 3. Odometría del Robot (Gazebo en ROS 1 le escupe la posición real a tu script de lazo cerrado en ROS 2)
+- ros1_topic_name: '/p3at_sim_2/odom'
+  ros2_topic_name: '/p3at_sim_2/odom'
+  ros1_type: 'nav_msgs/Odometry'
+  ros2_type: 'nav_msgs/msg/Odometry'

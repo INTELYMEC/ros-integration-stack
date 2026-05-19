@@ -74,7 +74,6 @@ services:
       "/root/worlds/simulation.launch", 
       "world_file:=${GAZEBO_WORLD_FILE}",
       "robot_file:=/root/robots/${ROBOT_MODEL_FILE}",
-      "robot_name:=${ROBOT_MODEL_NAME}",
       "gui:=${GAZEBO_GUI_ENABLED}"
     ]
 
@@ -103,7 +102,7 @@ services:
     container_name: ros2_bridge
     hostname: ros2_bridge
     depends_on:
-      - ros-master             # 🆕 Corrección Crítica: Necesita el Master ROS 1 vivo
+      - ros-master
       - robot_p3at_sim_ros1
       - robot_p3at_sim_ros2
     environment:
@@ -111,6 +110,8 @@ services:
       - ROS_HOSTNAME=ros2_bridge
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID}
       - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+    volumes:
+      - ./ros2_bridge/bridge_mappings.yaml:/bridge_mappings.yaml
     networks:
       - rosnet
 

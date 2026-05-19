@@ -54,9 +54,13 @@ stop:
 start:
 	$(DC) start
 
-reload-robot_p3at_sim_ros1:
+reload-p3at-sim-1:
 	$(DC) restart robot_p3at_sim_ros1
 	@echo "🔄 Nodo de control de ROS 1 recargado con éxito."
+
+reload-p3at-sim-2:
+	$(DC) restart robot_p3at_sim_ros2
+	@echo "🔄 Nodo de control de ROS 2 recargado con éxito."
 
 restart:
 	@$(CHECK_ENV) &&
@@ -69,13 +73,19 @@ logs:
 logs-gazebo:
 	@$(CHECK_ENV) && $(DC) logs -f gazebo
 
+logs-p3at-sim-1:
+	@$(CHECK_ENV) && $(DC) logs -f robot_p3at_sim_ros1
+
+logs-p3at-sim-2:
+	@$(CHECK_ENV) && $(DC) logs -f robot_p3at_sim_ros2
+
 shell-master:
 	@$(CHECK_ENV) && $(EXEC) ros-master bash
 
-shell-robot1:
+shell-p3at-sim-1:
 	@$(CHECK_ENV) && $(EXEC) robot_p3at_sim_ros1 bash
 
-shell-robot2:
+shell-p3at-sim-2:
 	@$(CHECK_ENV) && $(EXEC) robot_p3at_sim_ros2 bash
 
 shell-bridge:

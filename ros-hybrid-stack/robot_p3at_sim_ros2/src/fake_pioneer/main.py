@@ -1,38 +1,33 @@
 #!/usr/bin/env python3
-"""Escucha /{ROBOT_ROS1_NAMESPACE}/cmd_vel en ROS2 (reflejado vía bridge desde el sim ROS1)."""
 import os
-
 import rclpy
-from geometry_msgs.msg import Twist
 from rclpy.node import Node
+from geometry_msgs.msg import Twist
 
-LOG_PATH = "/ros_test_shared/ros2_cmd_vel_rx.log"
+from strategy.square_motion import run as square
 
-
-class CmdVelBridgeListener(Node):
+class FakePioneerRos2(Node):
     def __init__(self):
-        super().__init__("cmd_vel_bridge_listener")
-        ns = os.environ.get("ROBOT_ROS1_NAMESPACE", "p3at_sim_1").strip().strip("/")
-        topic = f"/{ns}/cmd_vel"
-        self.sub = self.create_subscription(Twist, topic, self._cb, 10)
-        self.get_logger().info(f"Subscribed to {topic} -> {LOG_PATH}")
-
-    def _cb(self, msg: Twist):
-        os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
-        with open(LOG_PATH, "a", encoding="utf-8") as f:
-            f.write(f"{msg.linear.x}\n")
-        self.get_logger().debug(f"logged linear.x={msg.linear.x}")
-
+        super().__init__("fake_pioneer_ros2")
+        
+        self.ns = os.environ.get("ROBOT_ROS2_NAMESPACE", "p3at_sim_2").strip().strip("/")
+        cmd_topic = f"/{self.ns}/cmd_vel"
+        
+        self.pub = self.create_publisher(Twist, cmd_topic, 10)
+        self.get_logger().info(f"Publishing ROS 2 cmd_vel on {cmd_topic}")
 
 def main():
     rclpy.init()
-    node = CmdVelBridgeListener()
+    node = FakePioneerRos2()
+    
     try:
-        rclpy.spin(node)
+        # Ejecutamos la estrategia pasándole el nodo y su publicador
+        square(node, node.pub)
+    except KeyboardInterrupt:
+        pass
     finally:
         node.destroy_node()
         rclpy.shutdown()
-
 
 if __name__ == "__main__":
     main()
