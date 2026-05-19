@@ -62,10 +62,9 @@ reload-p3at-sim-2:
 	$(DC) restart robot_p3at_sim_ros2
 	@echo "🔄 Nodo de control de ROS 2 recargado con éxito."
 
-restart:
-	@$(CHECK_ENV) &&
-	@if [ -z "$(s)" ]; then echo "⚠️ Especifica el servicio con s=<nombre>"; exit 1; fi
-	$(DC) restart $(s)
+reload-gazebo:
+	$(DC) restart gazebo
+	@echo "🔄 Nodo gazebo recargado con éxito."
 
 logs:
 	@$(CHECK_ENV) && $(DC) logs -f --tail=100

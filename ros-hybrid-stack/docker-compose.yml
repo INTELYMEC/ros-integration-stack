@@ -1,6 +1,7 @@
 volumes:
   ros_test_shared:
-
+  gui_home:
+  
 services:
   ros-master:
     build:
@@ -38,45 +39,47 @@ services:
     environment:
       - ROS_MASTER_URI=http://${ROS_MASTER_HOSTNAME}:${ROS_MASTER_PORT}
       - ROS_HOSTNAME=gui-desktop
-      - XHOST_DISABLE=1
-    volumes:
-      - /tmp/.X11-unix:/tmp/.X11-unix
     ports:
       - "8080:80"
     networks:
       - rosnet
+    volumes:
+      - gui_home:/home/ubuntu
+
   gazebo:
     build:
       context: ./gazebo_classic
       args:
         - BASE_IMAGE=${ROS1_BASE_IMAGE}
     container_name: gazebo
-    hostname: gazebo
     depends_on:
       - ros-master
+      - gui-desktop
+    network_mode: "service:gui-desktop"
+    ipc: host
+    user: "1000:1000"
     environment:
       - ROS_MASTER_URI=http://${ROS_MASTER_HOSTNAME}:${ROS_MASTER_PORT}
-      - ROS_HOSTNAME=gazebo
-      # Variables de entorno gráficas
-      - DISPLAY=${HOST_DISPLAY}
+      - DISPLAY=:1
+      - HOME=/home/ubuntu
+      - XAUTHORITY=/home/ubuntu/.Xauthority
       - QT_X11_NO_MITSHM=1
-      - LIBGL_ALWAYS_SOFTWARE=${LIBGL_ALWAYS_SOFTWARE:-0}
-      - XAUTHORITY=/root/.Xauthority
+      - LIBGL_ALWAYS_SOFTWARE=1
+      - XDG_RUNTIME_DIR=/tmp/runtime-ubuntu
     volumes:
-      - ./gazebo_classic/worlds:/root/worlds
-      - ./gazebo_classic/models:/root/.gazebo/models
-      - ./gazebo_classic/robots:/root/robots
+      - gui_home:/home/ubuntu
+      - ./gazebo_classic/worlds:/home/ubuntu/worlds
+      - ./gazebo_classic/models:/home/ubuntu/.gazebo/models
+      - ./gazebo_classic/robots:/home/ubuntu/robots
+      - ./gazebo_classic/launch:/home/ubuntu/launch
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-    networks:
-      - rosnet
     command: [
-      "roslaunch", 
-      "/root/worlds/simulation.launch", 
+      "roslaunch",
+      "/home/ubuntu/launch/simulation.launch",
       "world_file:=${GAZEBO_WORLD_FILE}",
-      "robot_file:=/root/robots/${ROBOT_MODEL_FILE}",
+      "robot_file:=/home/ubuntu/robots/${ROBOT_MODEL_FILE}",
       "gui:=${GAZEBO_GUI_ENABLED}"
     ]
-
   robot_p3at_sim_ros2:
     build:
       context: ./robot_p3at_sim_ros2
@@ -139,3 +142,4 @@ services:
 networks:
   rosnet:
     driver: bridge
+
