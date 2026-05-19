@@ -1,6 +1,18 @@
 DC = docker compose
 EXEC = docker exec -it
 
+# 🐧 DETECCIÓN DINÁMICA DE ENTORNO GRÁFICO (Ubuntu / Linux)
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+    # Si estamos en Linux nativo, preparamos las directivas gráficas de X11
+    XHOST_CMD = @xhost +local:docker > /dev/null 2>&1 || true
+    # Si existe .Xauthority en el host, preparamos un flag dinámico para Docker
+    XAUTH_VOL = -v $(HOME)/.Xauthority:/root/.Xauthority:ro
+else
+    XHOST_CMD = @true
+    XAUTH_VOL =
+endif
+
 CHECK_ENV = [ -f .env ] || (echo "====================================================" && \
                              echo "❌ ERROR: Archivo '.env' no encontrado." && \
                              echo "====================================================" && \
@@ -27,12 +39,24 @@ build-no-cache:
 	@$(CHECK_ENV) && $(DC) build --no-cache
 
 up:
-	@$(CHECK_ENV) && $(DC) up -d ros-master gui-desktop gazebo robot_p3at_sim_ros1 robot_p3at_sim_ros2 ros2_bridge
+	@$(CHECK_ENV)
+	$(XHOST_CMD)
+	$(DC) up -d ros-master gui-desktop gazebo robot_p3at_sim_ros1 robot_p3at_sim_ros2 ros2_bridge
 	@echo "🎮 Laboratorio virtual híbrido completo activo."
 	@echo "🖥️  Interfaz gráfica disponible en http://localhost:8080"
 
 down:
 	$(DC) down
+
+stop:
+	$(DC) stop
+
+start:
+	$(DC) start
+
+reload-robot_p3at_sim_ros1:
+	$(DC) restart robot_p3at_sim_ros1
+	@echo "🔄 Nodo de control de ROS 1 recargado con éxito."
 
 restart:
 	@$(CHECK_ENV) &&

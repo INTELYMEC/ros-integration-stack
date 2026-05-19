@@ -1,5 +1,3 @@
-version: "3.9"
-
 volumes:
   ros_test_shared:
 
@@ -59,10 +57,16 @@ services:
     environment:
       - ROS_MASTER_URI=http://${ROS_MASTER_HOSTNAME}:${ROS_MASTER_PORT}
       - ROS_HOSTNAME=gazebo
+      # Variables de entorno gráficas
+      - DISPLAY=${HOST_DISPLAY}
+      - QT_X11_NO_MITSHM=1
+      - LIBGL_ALWAYS_SOFTWARE=${LIBGL_ALWAYS_SOFTWARE:-0}
+      - XAUTHORITY=/root/.Xauthority
     volumes:
       - ./gazebo_classic/worlds:/root/worlds
       - ./gazebo_classic/models:/root/.gazebo/models
       - ./gazebo_classic/robots:/root/robots
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
     networks:
       - rosnet
     command: [
