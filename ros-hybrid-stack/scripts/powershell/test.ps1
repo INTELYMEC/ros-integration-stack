@@ -5,7 +5,7 @@ $ErrorActionPreference = 'Stop'
 
 docker compose build
 
-docker compose up -d robot_p3at_sim_ros1 robot_p3at_sim_ros2 ros2_bridge
+docker compose up -d robot_p3at_sim_ros1 robot_p3at_sim_ros2 ros_bridge
 
 $rc = 0
 try {

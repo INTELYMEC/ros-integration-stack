@@ -24,4 +24,6 @@ export ROS_HOSTNAME=${ROS_HOSTNAME}
 
 echo "🚀 Iniciando Bridge Híbrido con Mapeo Estricto por Archivo..."
 
-ros2 run ros1_bridge dynamic_bridge --bridge-mapping-with-yaml /bridge_mappings.yaml
+ros2 run ros1_bridge dynamic_bridge \
+  --bridge-all-topics \
+  --bridge-mapping-with-yaml /bridge_mappings.yaml

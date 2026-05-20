@@ -45,7 +45,12 @@ services:
       - rosnet
     volumes:
       - gui_home:/home/ubuntu
-
+    command: >
+      bash -c "
+        mkdir -p /home/ubuntu/.gazebo &&
+        chown -R ubuntu:ubuntu /home/ubuntu &&
+        /startup.sh
+      "
   gazebo:
     build:
       context: ./gazebo_classic
@@ -57,7 +62,7 @@ services:
       - gui-desktop
     network_mode: "service:gui-desktop"
     ipc: host
-    user: "1000:1000"
+    #user: "1000:1000"
     environment:
       - ROS_MASTER_URI=http://${ROS_MASTER_HOSTNAME}:${ROS_MASTER_PORT}
       - DISPLAY=:1
@@ -73,13 +78,15 @@ services:
       - ./gazebo_classic/robots:/home/ubuntu/robots
       - ./gazebo_classic/launch:/home/ubuntu/launch
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-    command: [
-      "roslaunch",
-      "/home/ubuntu/launch/simulation.launch",
-      "world_file:=${GAZEBO_WORLD_FILE}",
-      "robot_file:=/home/ubuntu/robots/${ROBOT_MODEL_FILE}",
-      "gui:=${GAZEBO_GUI_ENABLED}"
-    ]
+    command: >
+      bash -c "
+        mkdir -p /home/ubuntu/.gazebo &&
+        chown -R 1000:1000 /home/ubuntu &&
+        roslaunch /home/ubuntu/launch/simulation.launch \
+          world_file:=${GAZEBO_WORLD_FILE} \
+          robot_file:=/home/ubuntu/robots/${ROBOT_MODEL_FILE} \
+          gui:=${GAZEBO_GUI_ENABLED}
+      "
   robot_p3at_sim_ros2:
     build:
       context: ./robot_p3at_sim_ros2
@@ -97,24 +104,24 @@ services:
     networks:
       - rosnet
 
-  ros2_bridge:
+  ros_bridge:
     build:
-      context: ./ros2_bridge
+      context: ./ros_bridge
       args:
         - BASE_IMAGE=${ROS2_BASE_IMAGE}
-    container_name: ros2_bridge
-    hostname: ros2_bridge
+    container_name: ros_bridge
+    hostname: ros_bridge
     depends_on:
       - ros-master
       - robot_p3at_sim_ros1
       - robot_p3at_sim_ros2
     environment:
       - ROS_MASTER_URI=http://${ROS_MASTER_HOSTNAME}:${ROS_MASTER_PORT}
-      - ROS_HOSTNAME=ros2_bridge
+      - ROS_HOSTNAME=ros_bridge
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID}
       - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
     volumes:
-      - ./ros2_bridge/bridge_mappings.yaml:/bridge_mappings.yaml
+      - ./ros_bridge/bridge_mappings.yaml:/bridge_mappings.yaml
     networks:
       - rosnet
 
@@ -124,10 +131,11 @@ services:
       context: ./ros_tests
       args:
         - BASE_IMAGE=${ROS2_BASE_IMAGE}
+    container_name: ros_tests
     depends_on:
       - robot_p3at_sim_ros1
       - robot_p3at_sim_ros2
-      - ros2_bridge
+      - ros_bridge
     networks:
       - rosnet
     environment:

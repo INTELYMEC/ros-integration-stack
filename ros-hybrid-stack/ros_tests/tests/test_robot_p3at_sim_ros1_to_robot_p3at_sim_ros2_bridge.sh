@@ -9,28 +9,35 @@ LOG="/ros_test_shared/ros2_cmd_vel_rx.log"
 
 mkdir -p /ros_test_shared
 rm -f "${LOG}"
-: >"${LOG}" || true
 
-echo "🔍 Test sim ROS1 → bridge → sim ROS2 (trigger ${TRIG})"
+echo "🔍 Test sim ROS1 → bridge → sim ROS2"
 
-echo "➡️  Publicando desde ROS1..."
+echo "🚀 Iniciando listener ROS2..."
 
 bash -c "
-unset ROS_DISTRO ROS_ROOT ROS_PACKAGE_PATH
+source /opt/ros/foxy/setup.bash
+python3 /tests/listeners/ros2_bridge_listener.py
+" &
+
+LISTENER_PID=$!
+
+sleep 3
+
+echo "➡️ Publicando trigger desde ROS1..."
+
+bash -c "
 source /opt/ros/noetic/setup.bash
 rostopic pub -1 ${TRIG} std_msgs/String \"data: 'go'\"
-" >/dev/null 2>&1
+"
 
-echo "⏳ Esperando recepción en listener ROS2..."
-for _ in $(seq 1 20); do
-  if grep -q '7\.77' "${LOG}" 2>/dev/null; then
-    echo "⬅️ sim ROS1 → bridge → sim ROS2 OK"
-    grep -m 1 '7\.77' "${LOG}"
-    exit 0
-  fi
-  sleep 1
-done
+sleep 5
 
-echo "❌ No se registró 7.77 en ${LOG}"
-cat "${LOG}" 2>/dev/null || true
-exit 1
+kill ${LISTENER_PID} 2>/dev/null || true
+
+if grep -q '7\.77' "${LOG}"; then
+  echo "✅ TEST PASSED"
+else
+  echo "❌ TEST FAILED"
+  cat "${LOG}" || true
+  exit 1
+fi

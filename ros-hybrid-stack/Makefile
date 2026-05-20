@@ -24,13 +24,13 @@ CHECK_ENV = [ -f .env ] || (echo "==============================================
 
 help:
 	@echo "Comandos disponibles:"
-	@echo "  make build           - Construir todas las imágenes del stack"
-	@echo "  make build-no-cache  - Reconstruir desde cero sin usar la cache"
-	@echo "  make up              - Levantar TODO el laboratorio virtual (Física + Stack Híbrido)"
-	@echo "  make down            - Detener y remover todos los contenedores y redes"
-	@echo "  make restart s=<name>- Reiniciar un servicio rápido (ej: make restart s=robot_p3at_sim_ros1)"
-	@echo "  make test            - Ejecutar la suite de pruebas completa de certificación"
-	@echo "  clean                - Limpieza profunda de imágenes y volúmenes"
+	@echo "  make build            - Construir todas las imágenes del stack"
+	@echo "  make build-no-cache   - Reconstruir desde cero sin usar la cache"
+	@echo "  make up               - Levantar TODO el laboratorio virtual (Física + Stack Híbrido)"
+	@echo "  make down             - Detener y remover todos los contenedores y redes"
+	@echo "  make restart s=<name> - Reiniciar un servicio rápido (ej: make restart s=robot_p3at_sim_ros1)"
+	@echo "  make tests            - Ejecutar la suite de pruebas completa de certificación"
+	@echo "  clean                 - Limpieza profunda de imágenes y volúmenes"
 
 build:
 	@$(CHECK_ENV) && $(DC) build
@@ -41,7 +41,7 @@ build-no-cache:
 up:
 	@$(CHECK_ENV)
 	$(XHOST_CMD)
-	$(DC) up -d ros-master gui-desktop gazebo robot_p3at_sim_ros1 robot_p3at_sim_ros2 ros2_bridge
+	$(DC) up -d ros-master gui-desktop gazebo robot_p3at_sim_ros1 robot_p3at_sim_ros2 ros_bridge
 	@echo "🎮 Laboratorio virtual híbrido completo activo."
 	@echo "🖥️  Interfaz gráfica disponible en http://localhost:8080"
 
@@ -88,7 +88,7 @@ shell-p3at-sim-2:
 	@$(CHECK_ENV) && $(EXEC) robot_p3at_sim_ros2 bash
 
 shell-bridge:
-	@$(CHECK_ENV) && $(EXEC) ros2_bridge bash
+	@$(CHECK_ENV) && $(EXEC) ros_bridge bash
 
 shell-gazebo:
 	@$(CHECK_ENV) && $(EXEC) gazebo bash
@@ -96,10 +96,11 @@ shell-gazebo:
 shell-gui:
 	@$(CHECK_ENV) && $(EXEC) gui-desktop bash -c "source /opt/ros/noetic/setup.bash && export DISPLAY=:1 && bash"
 
-test:
+tests:
 	@$(CHECK_ENV) && echo "🕵️ Lanzando la suite de pruebas completa..." && $(DC) --profile test up --build ros_tests
 
 clean:
+	docker compose down --remove-orphans	
 	docker compose down -v --rmi local
 	docker system prune -f
 	@echo "🧹 Docker limpio y espacio liberado por completo."

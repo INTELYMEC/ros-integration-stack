@@ -1,0 +1,43 @@
+# ./ros_bridge/bridge_mappings.yaml
+
+# 1. Sincronización del Reloj (Indispensable para el tiempo físico)
+- ros1_topic_name: '/clock'
+  ros2_topic_name: '/clock'
+  ros1_type: 'rosgraph_msgs/Clock'
+  ros2_type: 'rosgraph_msgs/msg/Clock'
+
+# ====================================================
+# ROBOT 1 (p3at_sim_1)
+# ====================================================
+- ros1_topic_name: '/p3at_sim_1/cmd_vel'
+  ros2_topic_name: '/p3at_sim_1/cmd_vel'
+  ros1_type: 'geometry_msgs/Twist'
+  ros2_type: 'geometry_msgs/msg/Twist'
+
+- ros1_topic_name: '/p3at_sim_1/odom'
+  ros2_topic_name: '/p3at_sim_1/odom'
+  ros1_type: 'nav_msgs/Odometry'
+  ros2_type: 'nav_msgs/msg/Odometry'
+
+- ros1_topic_name: '/p3at_sim_1/ros1_bridge_test_trigger'
+  ros2_topic_name: '/p3at_sim_1/ros1_bridge_test_trigger'
+  ros1_type: 'std_msgs/String'
+  ros2_type: 'std_msgs/msg/String'
+
+# ====================================================
+# ROBOT 2 (p3at_sim_2)
+# ====================================================
+- ros1_topic_name: '/p3at_sim_2/cmd_vel'
+  ros2_topic_name: '/p3at_sim_2/cmd_vel'
+  ros1_type: 'geometry_msgs/Twist'
+  ros2_type: 'geometry_msgs/msg/Twist'
+
+- ros1_topic_name: '/p3at_sim_2/odom'
+  ros2_topic_name: '/p3at_sim_2/odom'
+  ros1_type: 'nav_msgs/Odometry'
+  ros2_type: 'nav_msgs/msg/Odometry'
+
+- ros1_topic_name: '/p3at_sim_2/ros_bridge_test_trigger'
+  ros2_topic_name: '/p3at_sim_2/ros_bridge_test_trigger'
+  ros1_type: 'std_msgs/String'
+  ros2_type: 'std_msgs/msg/String'

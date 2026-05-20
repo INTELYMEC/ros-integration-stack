@@ -35,13 +35,21 @@ RUN apt-get update && \
     apt-get install -y \
     ros-foxy-rmw-cyclonedds-cpp
 
+# ROS2 Python APIs para listeners auxiliares
+RUN apt-get update && \
+    apt-get install -y \
+    ros-foxy-rclpy \
+    ros-foxy-std-msgs
+
 # Copiar tests
 COPY . /tests
 
 # Permisos + compatibilidad CRLF
 RUN chmod +x /tests/*.sh && \
     chmod +x /tests/tests/*.sh && \
+    chmod +x /tests/listeners/*.py && \
     sed -i 's/\r$//' /tests/*.sh && \
-    sed -i 's/\r$//' /tests/tests/*.sh
+    sed -i 's/\r$//' /tests/tests/*.sh && \
+    sed -i 's/\r$//' /tests/listeners/*.py
 
 ENTRYPOINT ["/tests/entrypoint.sh"]
