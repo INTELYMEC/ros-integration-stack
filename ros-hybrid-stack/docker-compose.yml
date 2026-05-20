@@ -28,7 +28,7 @@ services:
       - ROS_MASTER_URI=http://${ROS_MASTER_HOSTNAME}:${ROS_MASTER_PORT}
       - ROS_HOSTNAME=robot_p3at_sim_ros1
       - STRATEGY=${STRATEGY}
-      - ROBOT_NAMESPACE=${ROBOT_ROS1_NAMESPACE}
+      - ROBOT_NAMESPACE=${ROBOT_P3AT_ROS1_NAMESPACE}
     networks:
       - rosnet
   gui-desktop:
@@ -97,8 +97,8 @@ services:
     environment:
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID}
       - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-      - ROBOT_ROS1_NAMESPACE=${ROBOT_ROS1_NAMESPACE}
-      - ROBOT_ROS2_NAMESPACE=${ROBOT_ROS2_NAMESPACE}
+      - ROBOT_P3AT_ROS1_NAMESPACE=${ROBOT_P3AT_ROS1_NAMESPACE}
+      - ROBOT_P3AT_ROS2_NAMESPACE=${ROBOT_P3AT_ROS2_NAMESPACE}
     volumes:
       - ros_test_shared:/ros_test_shared
     networks:
@@ -142,10 +142,26 @@ services:
       - ROS_MASTER_URI=http://${ROS_MASTER_HOSTNAME}:${ROS_MASTER_PORT}
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID}
       - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-      - ROBOT_ROS1_NAMESPACE=${ROBOT_ROS1_NAMESPACE}
-      - ROBOT_ROS2_NAMESPACE=${ROBOT_ROS2_NAMESPACE}
+      - ROBOT_P3AT_ROS1_NAMESPACE=${ROBOT_P3AT_ROS1_NAMESPACE}
+      - ROBOT_P3AT_ROS2_NAMESPACE=${ROBOT_P3AT_ROS2_NAMESPACE}
     volumes:
       - ros_test_shared:/ros_test_shared
+
+  robot_unitree_go2_ros2:
+    build:
+      context: ./robot_unitree_go2_ros2
+      args:
+        - BASE_IMAGE=${ROS2_BASE_IMAGE}
+    container_name: robot_unitree_go2_ros2
+    hostname: robot_unitree_go2_ros2
+    environment:
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID}
+      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+      - ROBOT_NAMESPACE=${ROBOT_GO2_ROS2_NAMESPACE}
+    depends_on:
+      - ros_bridge
+    networks:
+      - rosnet
 
 networks:
   rosnet:

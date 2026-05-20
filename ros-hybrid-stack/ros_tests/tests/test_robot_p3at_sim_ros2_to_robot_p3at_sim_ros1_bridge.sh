@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-NS2="${ROBOT_ROS2_NAMESPACE:-p3at_sim_2}"
+NS2="${ROBOT_P3AT_ROS2_NAMESPACE:-p3at_sim_2}"
 NS2="${NS2#/}"
 
 TOPIC="/${NS2}/cmd_vel"

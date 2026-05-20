@@ -41,7 +41,7 @@ build-no-cache:
 up:
 	@$(CHECK_ENV)
 	$(XHOST_CMD)
-	$(DC) up -d ros-master gui-desktop gazebo robot_p3at_sim_ros1 robot_p3at_sim_ros2 ros_bridge
+	$(DC) up -d ros-master gui-desktop gazebo robot_p3at_sim_ros1 robot_p3at_sim_ros2 ros_bridge robot_unitree_go2_ros2
 	@echo "🎮 Laboratorio virtual híbrido completo activo."
 	@echo "🖥️  Interfaz gráfica disponible en http://localhost:8080"
 
@@ -86,6 +86,9 @@ shell-p3at-sim-1:
 
 shell-p3at-sim-2:
 	@$(CHECK_ENV) && $(EXEC) robot_p3at_sim_ros2 bash
+
+shell-go2-sim-2:
+	@$(CHECK_ENV) && $(EXEC) robot_unitree_go2_ros2 bash
 
 shell-bridge:
 	@$(CHECK_ENV) && $(EXEC) ros_bridge bash

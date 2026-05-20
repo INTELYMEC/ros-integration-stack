@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-NS1="${ROBOT_ROS1_NAMESPACE:-p3at_sim_1}"
+NS1="${ROBOT_P3AT_ROS1_NAMESPACE:-p3at_sim_1}"
 NS1="${NS1#/}"
 TOPIC="/${NS1}/intra_ros1"
 

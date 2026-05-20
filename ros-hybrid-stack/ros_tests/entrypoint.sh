@@ -2,8 +2,8 @@
 
 set -euo pipefail
 
-NS1="${ROBOT_ROS1_NAMESPACE:-p3at_sim_1}"
-NS2="${ROBOT_ROS2_NAMESPACE:-p3at_sim_2}"
+NS1="${ROBOT_P3AT_ROS1_NAMESPACE:-p3at_sim_1}"
+NS2="${ROBOT_P3AT_ROS2_NAMESPACE:-p3at_sim_2}"
 NS1="${NS1#/}"
 NS2="${NS2#/}"
 CMD_TOPIC_1="/${NS1}/cmd_vel"

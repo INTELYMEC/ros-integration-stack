@@ -9,7 +9,7 @@ class SquareNavigatorRos2:
     def __init__(self, node, pub):
         self.node = node
         self.pub = pub
-        self.ns = os.environ.get("ROBOT_ROS2_NAMESPACE", "p3at_sim_2").strip().strip("/")
+        self.ns = os.environ.get("ROBOT_P3AT_ROS2_NAMESPACE", "p3at_sim_2").strip().strip("/")
         
         # Variables de estado actualizadas por odometría
         self.x = 0.0

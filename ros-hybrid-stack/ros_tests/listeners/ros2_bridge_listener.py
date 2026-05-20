@@ -13,7 +13,7 @@ class RosBridgeListener(Node):
     def __init__(self):
         super().__init__('ros_bridge_listener')
 
-        ns1 = os.environ.get("ROBOT_ROS1_NAMESPACE", "p3at_sim_1").strip("/")
+        ns1 = os.environ.get("ROBOT_P3AT_ROS1_NAMESPACE", "p3at_sim_1").strip("/")
         trigger_topic = f"/{ns1}/ros1_bridge_test_trigger"
 
         self.log_file = "/ros_test_shared/ros2_cmd_vel_rx.log"

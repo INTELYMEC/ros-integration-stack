@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>fake_go2</name>
+  <version>0.0.1</version>
+
+  <description>Fake Unitree Go2 ROS2 node</description>
+
+  <maintainer email="sebastianvillar2104@gmail.com">dev</maintainer>
+  <license>MIT</license>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+</package>

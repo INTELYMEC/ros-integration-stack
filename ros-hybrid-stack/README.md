@@ -7,8 +7,8 @@ Variable	Propósito / Opciones
 ROS1_BASE_IMAGE	Imagen base Noetic (ej: arm64v8/ros:noetic para Mac M1/M2/M3, ros:noetic para Intel).
 ROS2_BASE_IMAGE	Imagen base Foxy (ej: arm64v8/ros:foxy-ros-base para Mac, ros:foxy-ros-base para Intel).
 ROS_DOMAIN_ID	Identificador de aislamiento de subred para ROS 2 (Default: 0).
-ROBOT_ROS1_NAMESPACE	Namespace asignado al robot en el grafo ROS 1 (p3at_sim_1).
-ROBOT_ROS2_NAMESPACE	Namespace asignado al robot en el grafo ROS 2 (p3at_sim_2).
+ROBOT_P3AT_ROS1_NAMESPACE	Namespace asignado al robot en el grafo ROS 1 (p3at_sim_1).
+ROBOT_P3AT_ROS2_NAMESPACE	Namespace asignado al robot en el grafo ROS 2 (p3at_sim_2).
 STRATEGY	Patrón matemático de navegación del robot (square / random).
 ROS_MASTER_HOSTNAME	Hostname de resolución para el Máster (Uso local: ros-master / Físico: IP del robot).
 ROS_MASTER_PORT	Puerto de escucha del máster (Default: 11311).

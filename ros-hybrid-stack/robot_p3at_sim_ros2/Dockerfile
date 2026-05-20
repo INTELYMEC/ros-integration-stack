@@ -12,6 +12,9 @@ RUN apt-get update && \
 
 WORKDIR /app
 
+RUN echo "source /opt/ros/foxy/setup.bash" >> /root/.bashrc
+RUN echo "export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp" >> /root/.bashrc
+
 COPY src/ /app/src/
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh && \

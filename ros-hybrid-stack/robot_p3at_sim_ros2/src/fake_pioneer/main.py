@@ -10,7 +10,7 @@ class FakePioneerRos2(Node):
     def __init__(self):
         super().__init__("fake_pioneer_ros2")
         
-        self.ns = os.environ.get("ROBOT_ROS2_NAMESPACE", "p3at_sim_2").strip().strip("/")
+        self.ns = os.environ.get("ROBOT_P3AT_ROS2_NAMESPACE", "p3at_sim_2").strip().strip("/")
         cmd_topic = f"/{self.ns}/cmd_vel"
         
         self.pub = self.create_publisher(Twist, cmd_topic, 10)
