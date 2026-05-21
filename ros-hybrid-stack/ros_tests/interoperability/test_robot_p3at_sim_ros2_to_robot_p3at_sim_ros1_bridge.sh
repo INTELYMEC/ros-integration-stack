@@ -10,7 +10,7 @@ TRIG="/${NS2}/ros_bridge_test_trigger"
 
 rm -f /tmp/test_sim_r2_r1.txt
 
-echo "🔍 Test sim ROS2 → bridge → ROS1 (${TOPIC})"
+echo "🔍 Test P3AT ROS2 → bridge → P3AT ROS1 (${TOPIC})"
 
 # =========================================================
 # 1. Lanzar listener ROS1
@@ -19,7 +19,7 @@ echo "🔍 Test sim ROS2 → bridge → ROS1 (${TOPIC})"
 bash -c "
 unset ROS_DISTRO ROS_ROOT ROS_PACKAGE_PATH
 source /opt/ros/noetic/setup.bash
-
+export BRIDGE_TRIGGER_TOPIC=${TRIG}
 python3 /tests/listeners/ros1_bridge_listener.py
 " &
 
@@ -47,7 +47,7 @@ sleep 3
 # 3. Publicar trigger desde ROS2
 # =========================================================
 
-echo "➡️  Publicando desde ROS2..."
+echo "➡️ Publicando desde ROS2..."
 
 bash -c "
 unset ROS_DISTRO ROS_ROOT ROS_PACKAGE_PATH
@@ -73,7 +73,7 @@ wait "${ECHO_PID}" 2>/dev/null || true
 # =========================================================
 
 if grep -q '8\.88' /tmp/test_sim_r2_r1.txt; then
-  echo "⬅️ sim ROS2 → bridge → ROS1 OK"
+  echo "✅ P3AT ROS2 → P3AT ROS1 OK"
   grep -m 1 '8\.88' /tmp/test_sim_r2_r1.txt
 else
   echo "❌ No se capturó 8.88 en ROS1"

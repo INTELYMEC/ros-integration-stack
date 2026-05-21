@@ -4,10 +4,13 @@ set -euo pipefail
 
 NS1="${ROBOT_P3AT_ROS1_NAMESPACE:-p3at_sim_1}"
 NS2="${ROBOT_P3AT_ROS2_NAMESPACE:-p3at_sim_2}"
+GO2_NS="${ROBOT_GO2_ROS2_NAMESPACE:-go2_sim_1}"
 NS1="${NS1#/}"
 NS2="${NS2#/}"
+GO2_NS="${GO2_NS#/}"
 CMD_TOPIC_1="/${NS1}/cmd_vel"
 CMD_TOPIC_2="/${NS2}/cmd_vel"
+GO2_CMD_TOPIC="/${GO2_NS}/cmd_vel"
 
 export ROS_MASTER_URI="${ROS_MASTER_URI:-http://robot_p3at_sim_ros1:11311}"
 

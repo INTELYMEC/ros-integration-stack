@@ -45,11 +45,8 @@ RUN apt-get update && \
 COPY . /tests
 
 # Permisos + compatibilidad CRLF
-RUN chmod +x /tests/*.sh && \
-    chmod +x /tests/tests/*.sh && \
-    chmod +x /tests/listeners/*.py && \
-    sed -i 's/\r$//' /tests/*.sh && \
-    sed -i 's/\r$//' /tests/tests/*.sh && \
-    sed -i 's/\r$//' /tests/listeners/*.py
+RUN find /tests -name "*.sh" -exec chmod +x {} \; && \
+    find /tests -name "*.py" -exec chmod +x {} \; && \
+    find /tests -type f -exec sed -i 's/\r$//' {} \;
 
 ENTRYPOINT ["/tests/entrypoint.sh"]

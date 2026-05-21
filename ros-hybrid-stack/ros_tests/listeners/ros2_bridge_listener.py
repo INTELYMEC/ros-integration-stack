@@ -7,54 +7,55 @@ from rclpy.node import Node
 
 from std_msgs.msg import String
 
+LOG_FILE = "/ros_test_shared/ros2_cmd_vel_rx.log"
 
-class RosBridgeListener(Node):
+class BridgeListener(Node):
 
     def __init__(self):
-        super().__init__('ros_bridge_listener')
+        super().__init__("ros_bridge_listener")
 
-        ns1 = os.environ.get("ROBOT_P3AT_ROS1_NAMESPACE", "p3at_sim_1").strip("/")
-        trigger_topic = f"/{ns1}/ros1_bridge_test_trigger"
-
-        self.log_file = "/ros_test_shared/ros2_cmd_vel_rx.log"
+        self.trigger_topic = os.environ.get(
+            "BRIDGE_TRIGGER_TOPIC",
+            "/p3at_sim_1/ros1_bridge_test_trigger"
+        )
 
         self.subscription = self.create_subscription(
             String,
-            trigger_topic,
+            self.trigger_topic,
             self.callback,
             10
         )
 
         self.get_logger().info(
-            f"Listening bridge trigger on {trigger_topic}"
+            f"Listening bridge trigger on {self.trigger_topic}"
         )
 
     def callback(self, msg):
+
         self.get_logger().info(
             f"Trigger received: {msg.data}"
         )
 
-        with open(self.log_file, "a") as f:
+        os.makedirs("/ros_test_shared", exist_ok=True)
+
+        with open(LOG_FILE, "w") as f:
             f.write("7.77\n")
 
         self.get_logger().info(
-            f"Wrote 7.77 into {self.log_file}"
+            f"Wrote 7.77 into {LOG_FILE}"
         )
 
-
 def main():
+
     rclpy.init()
 
-    node = RosBridgeListener()
+    node = BridgeListener()
 
     try:
         rclpy.spin(node)
-    except KeyboardInterrupt:
-        pass
-
-    node.destroy_node()
-    rclpy.shutdown()
-
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
 
 if __name__ == "__main__":
     main()

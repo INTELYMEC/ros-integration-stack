@@ -1,65 +1,145 @@
 #!/bin/bash
 
-# Suite de testing lineal y estricta
 set -uo pipefail
 
 FAILED=0
 
+declare -a RESULTS=()
+
 echo "===================================================="
-echo "🚀 INICIANDO CERTIFICACIÓN DEL ECOSERVIDOR HÍBRIDO"
+echo "🚀 INICIANDO CERTIFICACIÓN DEL ECOSISTEMA HÍBRIDO"
 echo "===================================================="
 
 run() {
+
     local name=$1
     shift
+
     if "$@"; then
         echo "✅ TEST: ${name} PASSED"
+
+        RESULTS+=("PASS | ${name}")
+
     else
         echo "❌ TEST: ${name} FAILED"
+
+        RESULTS+=("FAIL | ${name}")
+
         FAILED=1
     fi
 }
 
-# 📦 SECCIÓN 1: INFRAESTRUCTURA Y RED COMÚN
-echo "📦 [1/3] EVALUANDO INFRAESTRUCTURA BASE"
-echo "-----------------------------------------------------"
-run "Infraestructura: GUI Desktop Activo (noVNC)" timeout 2 bash -c "</dev/tcp/gui-desktop/80"
+# =====================================================
+# 📦 INFRAESTRUCTURA
+# =====================================================
+
+echo "📦 [1/5] INFRAESTRUCTURA"
 echo "-----------------------------------------------------"
 
-# 📡 SECCIÓN 2: COMUNICACIONES Y GRAFOS (Cerebro)
-echo "📡 [2/3] EVALUANDO GRAFOS DE DATOS Y BRIDGE HÍBRIDO"
-echo "-----------------------------------------------------"
-run "ROS1 intra-grafo" /tests/tests/test_robot_p3at_sim_ros1_intra_graph.sh
-echo "-----------------------------------------------------"
-run "ROS2 intra-grafo" /tests/tests/test_robot_p3at_sim_ros2_intra_graph.sh
-echo "-----------------------------------------------------"
-run "Bridge ROS1 → ROS2" /tests/tests/test_robot_p3at_sim_ros1_to_ros2_bridge.sh
-echo "-----------------------------------------------------"
-run "Bridge ROS2 → ROS1" /tests/tests/test_robot_p3at_sim_ros2_to_ros1_bridge.sh
-echo "-----------------------------------------------------"
-run "Sim ROS1 → Sim ROS2 (bridge)" /tests/tests/test_robot_p3at_sim_ros1_to_robot_p3at_sim_ros2_bridge.sh
-echo "-----------------------------------------------------"
-run "Sim ROS2 → Sim ROS1 (bridge)" /tests/tests/test_robot_p3at_sim_ros2_to_robot_p3at_sim_ros1_bridge.sh
+run "GUI Desktop activo" \
+    /tests/infrastructure/test_gui_desktop.sh
+
+# =====================================================
+# 📡 GRAFOS
+# =====================================================
+
+echo "📡 [2/5] GRAFOS ROS"
 echo "-----------------------------------------------------"
 
-# 🎮 SECCIÓN 3: MOTOR FÍSICO DE GAZEBO
-echo "🎮 [3/3] EVALUANDO MOTOR FÍSICO Y ENTIERRES (GAZEBO)"
+run "P3AT ROS1 intra-graph" \
+    /tests/graph/test_robot_p3at_sim_ros1_intra_graph.sh
+
+run "P3AT ROS2 intra-graph" \
+    /tests/graph/test_robot_p3at_sim_ros2_intra_graph.sh
+
+run "GO2 ROS2 intra-graph" \
+    /tests/graph/test_robot_go2_sim_ros2_intra_graph.sh
+
+# =====================================================
+# 🌉 BRIDGE
+# =====================================================
+
+echo "🌉 [3/5] BRIDGE ROS1 ↔ ROS2"
 echo "-----------------------------------------------------"
 
-# Encapsulamos el entorno Noetic en subshells limpias para que no tire warnings de conflicto con Foxy
-run "Gazebo: Publicación de Reloj (/clock)" \
-    bash -c "unset ROS_DISTRO && source /opt/ros/noetic/setup.bash && rostopic info /clock > /dev/null"
+run "ROS1 → ROS2 bridge" \
+    /tests/bridge/test_ros1_to_ros2_bridge.sh
+
+run "ROS2 → ROS1 bridge" \
+    /tests/bridge/test_ros2_to_ros1_bridge.sh
+
+# =====================================================
+# 🤝 INTEROPERABILIDAD
+# =====================================================
+
+echo "🤝 [4/5] INTEROPERABILIDAD MULTI-ROBOT"
 echo "-----------------------------------------------------"
 
-run "Gazebo: Entidad Pioneer Inyectada" \
-    bash -c "unset ROS_DISTRO && source /opt/ros/noetic/setup.bash && rostopic type /gazebo/model_states | grep -q 'ModelStates'"
+run "P3AT ROS1 → P3AT ROS2" \
+    /tests/interoperability/test_robot_p3at_sim_ros1_to_robot_p3at_sim_ros2_bridge.sh
+
+run "P3AT ROS2 → P3AT ROS1" \
+    /tests/interoperability/test_robot_p3at_sim_ros2_to_robot_p3at_sim_ros1_bridge.sh
+
+run "P3AT ROS1 → GO2 ROS2" \
+    /tests/interoperability/test_robot_p3at_sim_ros1_to_robot_go2_sim_ros2_bridge.sh
+
+run "GO2 ROS2 → P3AT ROS1" \
+    /tests/interoperability/test_robot_go2_sim_ros2_to_robot_p3at_sim_ros1_bridge.sh
+
+run "GO2 ROS2 → P3AT ROS2" \
+    /tests/interoperability/test_robot_go2_sim_ros2_to_robot_p3at_sim_ros2_bridge.sh
+
+run "P3AT ROS2 → GO2 ROS2" \
+    /tests/interoperability/test_robot_p3at_sim_ros2_to_robot_go2_sim_ros2_bridge.sh
+
+# =====================================================
+# 🎮 SIMULACIÓN
+# =====================================================
+
+echo "🎮 [5/5] SIMULACIÓN"
 echo "-----------------------------------------------------"
 
-run "Gazebo: Publicación de Odometría Física" \
-    bash -c "unset ROS_DISTRO && source /opt/ros/noetic/setup.bash && rostopic info /p3at_sim_1/odom > /dev/null"
+run "Gazebo clock" \
+    /tests/simulation/test_gazebo_clock.sh
+
+run "Gazebo model states" \
+    /tests/simulation/test_gazebo_model_states.sh
+
+# =====================================================
+# 🤖 CONTRATOS FÍSICOS
+# =====================================================
+
+echo "🤖 [EXTRA] CONTRATOS FÍSICOS"
+echo "-----------------------------------------------------"
+
+run "P3AT físico ROS1" \
+    /tests/contracts/test_robot_p3at_phy_ros1.sh
+
+run "GO2 físico ROS2" \
+    /tests/contracts/test_robot_go2_phy_ros2.sh
 
 echo "===================================================="
 echo "🏁 REPORTE FINALIZADO"
+echo "===================================================="
+
+echo ""
+echo "===================================================="
+echo "📊 RESUMEN FINAL"
+echo "===================================================="
+
+for result in "${RESULTS[@]}"; do
+    echo "${result}"
+done
+
+echo "===================================================="
+
+if [ "${FAILED}" -eq 0 ]; then
+    echo "🎉 TODOS LOS TESTS PASARON"
+else
+    echo "❌ EXISTEN TESTS FALLIDOS"
+fi
+
 echo "===================================================="
 
 exit "${FAILED}"
