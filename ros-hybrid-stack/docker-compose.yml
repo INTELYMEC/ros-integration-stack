@@ -78,15 +78,25 @@ services:
       - ./gazebo_classic/robots:/home/ubuntu/robots
       - ./gazebo_classic/launch:/home/ubuntu/launch
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-    command: >
-      bash -c "
-        mkdir -p /home/ubuntu/.gazebo &&
-        chown -R 1000:1000 /home/ubuntu &&
-        roslaunch /home/ubuntu/launch/simulation.launch \
-          world_file:=${GAZEBO_WORLD_FILE} \
-          robot_file:=/home/ubuntu/robots/${ROBOT_MODEL_FILE} \
+    command:
+      - bash
+      - -c
+      - >
+          mkdir -p /home/ubuntu/.gazebo &&
+          mkdir -p /tmp/runtime-ubuntu &&
+          chmod 700 /tmp/runtime-ubuntu &&
+          chown -R 1000:1000 /home/ubuntu &&
+          roslaunch /home/ubuntu/launch/simulation.launch
+          world_file:=${GAZEBO_WORLD_FILE}
+          robot_model_p3at:=/home/ubuntu/robots/${P3AT_MODEL_FILE}
+          robot_model_go2:=/home/ubuntu/robots/${GO2_MODEL_FILE}
           gui:=${GAZEBO_GUI_ENABLED}
-      "
+          p3at_1_x:=${P3AT_SIM_1_X}
+          p3at_1_y:=${P3AT_SIM_1_Y}
+          p3at_2_x:=${P3AT_SIM_2_X}
+          p3at_2_y:=${P3AT_SIM_2_Y}
+          go2_1_x:=${GO2_SIM_1_X}
+          go2_1_y:=${GO2_SIM_1_Y}
   robot_p3at_sim_ros2:
     build:
       context: ./robot_p3at_sim_ros2

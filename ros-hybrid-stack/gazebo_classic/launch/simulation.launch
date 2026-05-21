@@ -1,41 +1,112 @@
 <launch>
 
-  <arg name="world_file" default="pioneer_world.world"/>
+  <!-- ===================================================== -->
+  <!-- ARGUMENTS -->
+  <!-- ===================================================== -->
 
-  <arg name="robot_file"
-       default="/home/ubuntu/robots/pioneer3at.urdf"/>
+  <arg name="world_file" default="empty_world.world"/>
 
-  <arg name="gui"
-       default="true"/>
+  <arg name="robot_model_p3at"/>
+  <arg name="robot_model_go2"/>
+
+  <arg name="gui" default="true"/>
+
+  <!-- ===================================================== -->
+  <!-- SPAWN POSITIONS -->
+  <!-- ===================================================== -->
+
+  <!-- P3AT SIM 1 -->
+  <arg name="p3at_1_x" default="0"/>
+  <arg name="p3at_1_y" default="0"/>
+  <arg name="p3at_1_z" default="0.1"/>
+
+  <!-- P3AT SIM 2 -->
+  <arg name="p3at_2_x" default="2"/>
+  <arg name="p3at_2_y" default="2"/>
+  <arg name="p3at_2_z" default="0.1"/>
+
+  <!-- GO2 -->
+  <arg name="go2_1_x" default="-2"/>
+  <arg name="go2_1_y" default="0"/>
+  <arg name="go2_1_z" default="0.2"/>
+
+  <!-- ===================================================== -->
+  <!-- WORLD -->
+  <!-- ===================================================== -->
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
 
-    <arg name="world_name"
-         value="/home/ubuntu/worlds/$(arg world_file)"/>
+    <arg
+      name="world_name"
+      value="/home/ubuntu/worlds/$(arg world_file)"/>
 
-    <arg name="paused"
-         value="false"/>
-
-    <arg name="gui"
-         value="$(arg gui)"/>
-
-    <arg name="verbose"
-         value="true"/>
+    <arg name="paused" value="false"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="verbose" value="true"/>
 
   </include>
 
-  <node
-    name="spawn_p3at_sim_1"
-    pkg="gazebo_ros"
-    type="spawn_model"
-    args="-file $(arg robot_file) -urdf -model p3at_sim_1 -x 0 -y 0 -z 0.1"
-    output="screen"/>
+  <!-- ===================================================== -->
+  <!-- P3AT SIM 1 -->
+  <!-- ===================================================== -->
+
+  <param
+    name="robot_description_p3at_1"
+    command="$(find xacro)/xacro $(arg robot_model_p3at) robot_namespace:=p3at_sim_1"/>
 
   <node
-    name="spawn_p3at_sim_2"
     pkg="gazebo_ros"
     type="spawn_model"
-    args="-file $(arg robot_file) -urdf -model p3at_sim_2 -x 2 -y 2 -z 0.1"
+    name="spawn_p3at_sim_1"
+    args="
+      -urdf
+      -param robot_description_p3at_1
+      -model p3at_sim_1
+      -x $(arg p3at_1_x)
+      -y $(arg p3at_1_y)
+      -z $(arg p3at_1_z)"
+    output="screen"/>
+
+  <!-- ===================================================== -->
+  <!-- P3AT SIM 2 -->
+  <!-- ===================================================== -->
+
+  <param
+    name="robot_description_p3at_2"
+    command="$(find xacro)/xacro $(arg robot_model_p3at) robot_namespace:=p3at_sim_2"/>
+
+  <node
+    pkg="gazebo_ros"
+    type="spawn_model"
+    name="spawn_p3at_sim_2"
+    args="
+      -urdf
+      -param robot_description_p3at_2
+      -model p3at_sim_2
+      -x $(arg p3at_2_x)
+      -y $(arg p3at_2_y)
+      -z $(arg p3at_2_z)"
+    output="screen"/>
+
+  <!-- ===================================================== -->
+  <!-- GO2 -->
+  <!-- ===================================================== -->
+
+  <param
+    name="robot_description_go2"
+    command="$(find xacro)/xacro $(arg robot_model_go2) robot_namespace:=go2_sim_1"/>
+
+  <node
+    pkg="gazebo_ros"
+    type="spawn_model"
+    name="spawn_go2_sim_1"
+    args="
+      -urdf
+      -param robot_description_go2
+      -model go2_sim_1
+      -x $(arg go2_1_x)
+      -y $(arg go2_1_y)
+      -z $(arg go2_1_z)"
     output="screen"/>
 
 </launch>
