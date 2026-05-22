@@ -8,9 +8,10 @@ RUN chmod +x /entrypoint.sh
 RUN echo "source /opt/ros/noetic/setup.bash" >> /root/.bashrc
 
 RUN apt-get update && \
-    apt-get install -y iputils-ping dnsutils && \
+    apt-get install -y iputils-ping dnsutils dos2unix && \
+    dos2unix /entrypoint.sh && \
     rm -rf /var/lib/apt/lists/*
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["bash", "/entrypoint.sh"]
 
 CMD ["stdbuf", "-oL", "-eL", "roscore"]

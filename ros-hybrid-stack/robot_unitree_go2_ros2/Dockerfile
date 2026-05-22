@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     ros-foxy-geometry-msgs \
     ros-foxy-nav-msgs \
     ros-foxy-std-msgs \
+    dos2unix \
     && rm -rf /var/lib/apt/lists/*
 
 RUN echo "source /opt/ros/foxy/setup.bash" >> /root/.bashrc
@@ -19,6 +20,7 @@ WORKDIR /workspace
 COPY ./src /workspace/src
 COPY ./entrypoint.sh /entrypoint.sh
 
-RUN chmod +x /entrypoint.sh
+RUN dos2unix /entrypoint.sh && \
+    chmod +x /entrypoint.sh
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["bash", "/entrypoint.sh"]
